@@ -32,6 +32,10 @@ echo "--- Starting Logstash OSS ---"
 docker-compose up -d logstash
 echo -e "\n"
 
+echo "--- Starting Jaeger ---"
+docker-compose up -d jaeger
+echo -e "\n"
+
 echo "--- docker-compose ps ---"
 docker-compose ps
 
@@ -41,5 +45,9 @@ echo "--- Opensearch URL ---"
 echo https://$(curl -s ifconfig.io):9200
 echo "--- Opensearch Dashboard URL ---"
 echo http://$(curl -s ifconfig.io):5601
+echo "--- Jaeger URL ---"
+echo http://$(curl -s ifconfig.io):16686
 
+echo "--- Kong plugin Zipkin (Jaeger) ---"
+echo http://$(curl -s ifconfig.io):9411/api/v2/spans"
 echo -e "\n"

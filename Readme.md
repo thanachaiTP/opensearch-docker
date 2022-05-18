@@ -1,5 +1,13 @@
 # Opensearch Docker
 
+## 0. set sysctl
+```
+# vim /etc/sysctl.conf
+vm.max_map_count=262144
+
+# sysctl -p
+```
+
 ## 1. git clone 
 ```
 # git clone https://github.com/thanachaiTP/opensearch-docker.git
