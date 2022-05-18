@@ -24,6 +24,12 @@ services:
     ports:
       - 9200:9200
       - 9600:9600 # required for Performance Analyzer
+    healthcheck:
+      test: curl -sk -u admin:admin https://opensearch-node:9200/_cluster/health > /dev/null || exit 1
+#      test: ["CMD", "curl -sk -u admin:admin https://10.130.0.3:6200 >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   opensearch-dashboards:
     image: opensearchproject/opensearch-dashboards:1.3.2
