@@ -49,5 +49,5 @@ echo "--- Jaeger URL ---"
 echo http://$(curl -s ifconfig.io):16686
 
 echo "--- Kong plugin Zipkin (Jaeger) ---"
-echo http://$(curl -s ifconfig.io):9411/api/v2/spans"
+echo http://$(curl -s ifconfig.io):9411/api/v2/spans
 echo -e "\n"
