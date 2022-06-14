@@ -17,7 +17,6 @@ vm.max_map_count=262144
 ## 2. create directory 
 ```
 # mkdir -p opensearch-data && chown -R 1000:1000 opensearch-data
-# chown -R 1000:1000 pipeline
 ```
 
 ## 3. run
