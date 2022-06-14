@@ -1,0 +1,22 @@
+_format_version: '1.1'
+
+services:
+- name: opensearch
+  url: https://opensearch:80
+  routes:
+    - name: route-opensearch
+      paths:
+        - "/"
+      hosts:
+#      preserve_host: true
+#      https_redirect_status_code: 302
+#      protocols:
+#        - https
+
+upstreams:
+- name: opensearch
+  targets:
+  - target: opensearch-node:9200
+    weight: 100
+#  - target: https://127.0.0.1:9200
+#    weight: 100

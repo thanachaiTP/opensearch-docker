@@ -1,7 +1,33 @@
 version: '3.7'
 services:
+  kong:
+    image: kong:2.8
+    container_name: kong-9200
+    restart: always
+    environment:
+      - TZ=Asia/Bangkok
+      - KONG_DATABASE=off
+      - KONG_ANONYMOUS_REPORTS=off
+      - KONG_DECLARATIVE_CONFIG=/etc/kong/conf.d/kong.yml
+      - KONG_ADMIN_LISTEN=0.0.0.0:8001
+      - KONG_PROXY_LISTEN=0.0.0.0:80 reuseport backlog=65535, 0.0.0.0:443 ssl http2 reuseport backlog=65535
+      - KONG_TRUSTED_IPS=0.0.0.0/0,::/0
+      - KONG_REAL_IP_RECURSIVE=on
+      - KONG_STATUS_LISTEN=127.0.0.1:9123
+      - KONG_PROXY_ACCESS_LOG=/dev/null
+      - KONG_PROXY_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_ERROR_LOG=/dev/stderr
+      - KONG_HEADERS=off
+      - KONG_LUA_SSL_TRUSTED_CERTIFICATE=/etc/ssl/certs/ca-certificates.crt
+    command: kong start
+    ports:
+      - 9200:80
+      - 8002:8001
+    volumes:
+      - ./conf.d:/etc/kong/conf.d
+
   opensearch-node:
-    image: opensearchproject/opensearch:1.3.2
+    image: opensearchproject/opensearch:1.3.3
     container_name: opensearch-node
     restart: always
     hostname: opensearch-node
@@ -12,6 +38,7 @@ services:
       - bootstrap.memory_lock=true # along with the memlock settings below, disables swapping
       - "OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g" # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
       - network.host=0.0.0.0
+      - compatibility.override_main_response_version=true
     ulimits:
       memlock:
         soft: -1
@@ -21,18 +48,18 @@ services:
         hard: 65536
     volumes:
       - ./opensearch-data:/usr/share/opensearch/data
+      - ./securityconfig/internal_users.yml:/usr/share/opensearch/plugins/opensearch-security/securityconfig/internal_users.yml
     ports:
-      - 9200:9200
+      - 9201:9200
       - 9600:9600 # required for Performance Analyzer
     healthcheck:
       test: curl -sk -u admin:admin https://opensearch-node:9200/_cluster/health > /dev/null || exit 1
-#      test: ["CMD", "curl -sk -u admin:admin https://10.130.0.3:6200 >/dev/null || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   opensearch-dashboards:
-    image: opensearchproject/opensearch-dashboards:1.3.2
+    image: opensearchproject/opensearch-dashboards:1.3.3
     container_name: opensearch-dashboards
     restart: always
     ports:
@@ -45,35 +72,27 @@ services:
       OPENSEARCH_PASSWORD: admin
       OPENSEARCH_SSL_VERIFICATIONMODE: none
 
-  logstash:
-#    image: docker.elastic.co/logstash/logstash:8.2.0
-    image: opensearchproject/logstash-oss-with-opensearch-output-plugin:7.16.3
-    container_name: logstash
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
     restart: always
-    volumes:
-      - ./pipeline:/usr/share/logstash/pipeline
-    ports:
-      - 5044:5044
-
-  jaeger:
-    image: jaegertracing/all-in-one:1.34
-    container_name: jaeger
-    restart: always
+    network_mode: host
     environment:
       - TZ=Asia/Bangkok
-      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
-      - SPAN_STORAGE_TYPE=badger
-      - BADGER_DIRECTORY_VALUE=/go/bin/data
-      - BADGER_EPHEMERAL=false
+      - STORAGE_TYPE=elasticsearch
+      - STORAGE_PORT_9200_TCP_ADDR="http://192.168.1.109"
+      - ES_USERNAME=admin
+      - ES_PASSWORD=admin
+      - ES_SSL_NO_VERIFY=true
+    command: --logging.level.zipkin2=DEBUG
+
+  fluent-bit:
+    image: fluent/fluent-bit:1.9
+    container_name: fluent-bit
+    restart: always
+    network_mode: host
     volumes:
-      - ./jaeger-data:/go/bin/data
-    ports:
-      - 5775:5775/udp
-      - 6831:6831/udp
-      - 6832:6832/udp
-      - 5778:5778
-      - 16686:16686
-      - 14250:14250
-      - 14268:14268
-      - 14269:14269
-      - 9411:9411
+    - ./conf/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+    - ./conf/parsers.conf:/fluent-bit/etc/parsers.conf
+    - ./conf/filter.lua:/fluent-bit/etc/filter.lua
+    - ./fluent-data:/data/db
