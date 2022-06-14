@@ -10,7 +10,7 @@ vm.max_map_count=262144
 
 ## 1. git clone 
 ```
-# git clone https://github.com/thanachaiTP/opensearch-docker.git
+# git clone https://github.com/thanachaiTP/opensearch-docker.git -b opensearch-fluentbit
 # cd opensearch-docker
 ```
 
