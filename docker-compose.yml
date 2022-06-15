@@ -23,7 +23,7 @@ services:
     volumes:
       - ./opensearch-data:/usr/share/opensearch/data
     ports:
-      - 9201:9200
+      - 9200:9200
       - 9600:9600 # required for Performance Analyzer
     healthcheck:
       test: curl -sk -u admin:admin https://opensearch-node:9200/_cluster/health > /dev/null || exit 1
