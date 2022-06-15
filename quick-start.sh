@@ -8,19 +8,6 @@ ls -l
 
 echo -e "\n"
 
-echo "--- Starting Kong ---"
-docker-compose up -d kong
-
-STATUSKONG="starting"
-while [ "$STATUSKONG" != "healthy" ]
-do
-    STATUSKONG=$(docker inspect --format {{.State.Health.Status}} kong-9200)
-    echo "kong state = $STATUSKONG"
-    sleep 5
-done
-
-echo -e "\n"
-
 echo "--- Starting Opensearch Node ---"
 
 docker-compose up -d opensearch-node
@@ -44,18 +31,6 @@ echo "--- Starting Fluentbit ---"
 docker-compose up -d fluent-bit
 echo -e "\n"
 
-echo "--- Starting Zipkin ---"
-docker-compose up -d zipkin
-
-STATUSZIPKIN="starting"
-while [ "$STATUSZIPKIN" != "healthy" ]
-do
-    STATUSZIPKIN=$(docker inspect --format {{.State.Health.Status}} zipkin)
-    echo "zipkin state = $STATUSZIPKIN"
-    sleep 5
-done
-
-echo -e "\n"
 
 echo "--- docker-compose ps ---"
 docker-compose ps
@@ -63,12 +38,7 @@ docker-compose ps
 echo -e "\n"
 echo "--- URL ---"
 echo "--- Opensearch URL ---"
-echo http://$(curl -s ifconfig.io):9200
+echo https://$(curl -s ifconfig.io):9200
 echo "--- Opensearch Dashboard URL ---"
 echo http://$(curl -s ifconfig.io):5601
-echo "--- Zipkin URL ---"
-echo http://$(curl -s ifconfig.io):9411
-
-echo "--- Kong plugin Zipkin (Jaeger) ---"
-echo http://$(curl -s ifconfig.io):9411/api/v2/spans
 echo -e "\n"
