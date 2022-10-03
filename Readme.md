@@ -49,3 +49,37 @@ OR
 ```
 # curl -X DELETE -k -u admin:admin https://127.0.0.1:9200/my-index-000002?pretty
 ```
+
+## 7. Change default admin password
+exec to container and run hash.sh with option -p newpassword 
+copy password hash
+```
+# docker exec -it opensearch-node bash
+# /usr/share/opensearch/plugins/opensearch-security/tools/hash.sh -p passw0rd
+
+$2y$12$UrLh1/OG6EhZ8RC27BD5ROOQ.4ioECP7RbE1ILC9vg4bWo0cx6vhS
+```
+
+## 8. Edit internal_users.yml
+```
+# vi /usr/share/opensearch/config/opensearch-security/internal_users.yml
+```
+Example
+```
+admin:
+  hash: "$2y$12$UrLh1/OG6EhZ8RC27BD5ROOQ.4ioECP7RbE1ILC9vg4bWo0cx6vhS"
+  reserved: true
+  backend_roles:
+  - "admin"
+  description: "Demo admin user"
+
+kibanaserver:
+  hash: "$2y$12$UrLh1/OG6EhZ8RC27BD5ROOQ.4ioECP7RbE1ILC9vg4bWo0cx6vhS"
+```
+
+## 9. Apply security changes
+```
+# ./usr/share/opensearch/securityadmin_demo.sh
+```
+
+## 10. Exit container opensearch-node
