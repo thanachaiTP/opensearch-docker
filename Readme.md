@@ -79,7 +79,7 @@ kibanaserver:
 
 ## 9. Apply security changes
 ```
-# ./usr/share/opensearch/securityadmin_demo.sh
+# sh /usr/share/opensearch/securityadmin_demo.sh
 ```
 
 ## 10. Exit container opensearch-node
