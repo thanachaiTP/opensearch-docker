@@ -82,4 +82,15 @@ kibanaserver:
 # sh /usr/share/opensearch/securityadmin_demo.sh
 ```
 
-## 10. Exit container opensearch-node
+## 10. Opensearch Exporter
+[opensearch-exporter](https://github.com/aiven/prometheus-exporter-plugin-for-opensearch)
+```
+# docker exec -it opensearch-node bash
+# opensearch-plugin install https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.7.0.0/prometheus-exporter-2.7.0.0.zip
+# exit
+
+# docker cp opensearch-node:/usr/share/opensearch/plugins opensearch-plugins
+# chown -R 1000:1000 opensearch-plugins
+```
+
+## 11. Exit container opensearch-node
